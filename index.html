@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Mac note app</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+      <link rel="stylesheet" href="public/css/style.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js" integrity="sha256-23hi0Ag650tclABdGCdMNSjxvikytyQ44vYGo9HyOrU=" crossorigin="anonymous"></script>
+      <script src="public/js/angular-markdown-editable.js"></script>
+      <script src="public/js/showdown.min.js"></script>
+   </head>
+   <body ng-app="macNotesApp" ng-controller="notesApp" id="notesApp"  ng-cloak>
+      <div class="loader " ng-class="{true: 'loading', false: 'loaded'}[isDataLoading == true]"></div>
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-3">
+               <h4  ng-click="addDirectory()">Folder  <span class="glyphicon glyphicon glyphicon-plus pointer float-right"></span></h4>
+               <div class="list-group" id="dirList" ng-show="notesDirectory.length">
+                  <a href="javascript:;" class="list-group-item list-group-item-action directory" ng-class="{'active': d.id == currentDirectory}" ng-repeat="d in notesDirectory | orderBy:'name'" ng-init="$first ? getNoteList($index,d.id) : angular.noop()" >
+                  <p class=" " ng-click="getNoteList($index,d.id)"  >
+                        <span class="directory{{d.id}} directoryName" ng-model="d.title" ng-blur="renameDirectoryDone($index,d.id)">
+                              {{d.name}}
+                        </span>
+                        <br>
+                        <span>
+                              {{d.updated | date:"EEEE dd MMMM, yyyy 'at' h:mma"}}
+                        </span>
+                  </p>
+                  
+
+                  <span class="glyphicon glyphicon-remove pointer float-right deleteDirectory" ng-click="deleteDirectory($index,d.id)" ></span>
+                  <span class="glyphicon glyphicon-pencil pointer float-right rename" ng-click="renameDirectory($index,d.id)" ></span>
+                  </a>
+               </div>
+            </div>
+            <div class="col-sm-3">
+               <h4  ng-click="addNote()">Notes <span class="glyphicon glyphicon glyphicon-plus pointer float-right"></span></h4>
+               <div class="list-group" ng-show="notesDirectory.length">
+                  <a href="javascript:;" class="list-group-item list-group-item-action noteList" ng-class="{'active': $index == currentNoteIndex}" ng-repeat="n in notesList | orderBy:'-updated'" ng-init="$first ? getNote($index,n) : angular.noop()" >
+
+                  <p class=" " ng-click="getNote($index,n)"  >
+                     <span class="note{{n.id}} " ng-model="n.name" ng-blur="renameNoteDone($index,n.id)">
+                           {{n.name}}
+                     </span>
+                     <br>
+                     <span>
+                        {{n.note}}
+                     </span>
+                     <br>
+                     <span>
+                           {{n.updated | date:"EEEE dd MMMM, yyyy 'at' h:mma"}}
+                     </span>
+                  </p>
+
+                  <span class="glyphicon glyphicon-remove pointer float-right deleteNote" ng-click="deleteNote($index,n.id)" ></span>
+                  <span class="glyphicon glyphicon-pencil pointer float-right renameNote" ng-click="renameNote($index,n.id)" ></span>
+                  
+                  </a>
+               </div>
+            </div>
+            <div class="col-sm-6" ng-show="notesList.length">
+               <div class="note" >
+                  <h4>
+                  
+                     <i class="glyphicon glyphicon-ok pointer float-right" ng-if="noteEdit == false"></i>
+                     <i class="glyphicon glyphicon-pencil pointer float-right" ng-if="noteEdit == true"></i>
+
+                  </h4>
+
+                  <div class="markdown-body" ng-model="currentNoteText" ng-change="updateNote()" ng-focus="noteEdit = true" ng-blur="noteEdit = false" markdown-editable contenteditable="true">{{ currentNoteText }}</div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script type= text/javascript>
+
+         var restApiDir="http://localhost:3000/directory";
+         var restApiNote="http://localhost:3000/note";
+         
+      </script>
+      <script src="app.js" ></script>
+   </body>
+</html>
